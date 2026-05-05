@@ -1,8 +1,6 @@
-version: '3.9'
-
 services:
   postgres:
-    image: postgres:15
+    image: ankane/pgvector:latest
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,13 +8,12 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
   api:
     build: ./api
     depends_on:
       - postgres
-      - ollama
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -25,14 +22,16 @@ services:
       OLLAMA_HOST: ${OLLAMA_HOST}
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
 
   ollama:
     image: ollama/ollama
     ports:
       - "11434:11434"
     volumes:
-      - ollama:/root/.ollama
+      - ollama_data:/root/.ollama
 
 volumes:
-  pgdata:
-  ollama:
+  postgres_data:
+  ollama_data:
