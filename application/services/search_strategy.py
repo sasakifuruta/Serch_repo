@@ -56,18 +56,19 @@ class HybridSearch(SearchStrategy):
 
         return [c for c, _ in ranked[:3]]
     
-    
-class SearchFactory:
 
+STRATEGIES = {
+    "vector": VectorSearch,
+    "ts": TSSearch,
+    "hybrid": HybridSearch,
+}
+
+class SearchFactory:
     @staticmethod
     def get(name: str, conn, llm):
         repo = DocumentRepository(conn)
-
-        if name == "vector":
-            return VectorSearch(repo, llm)
-        elif name == "ts":
-            return TSSearch(repo)
-        elif name == "hybrid":
-            return HybridSearch(repo, llm)
-        else:
-            return VectorSearch(repo, llm)
+        cls = STRATEGIES.get(name, VectorSearch)
+        
+        if cls == TSSearch:
+            return cls(repo)
+        return cls(repo, llm)
